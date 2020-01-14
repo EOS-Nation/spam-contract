@@ -26,6 +26,9 @@ void spam::fire( const time_point_sec timestamp, uint64_t batch )
 
     for (uint64_t unique = 1; unique <= MAX_UNIQUES; ++unique) {
         nounce.send( timestamp, batch, unique );
+
+        const uint64_t key = calculate_key( timestamp, batch ) + unique;
+        send_deferred( nounce.to_action( timestamp, batch, unique ), key, 0 );
     }
 }
 
