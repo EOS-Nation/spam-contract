@@ -1,0 +1,7 @@
+{
+  "kind": "eosc-vault-wallet",
+  "version": 1,
+  "comment": "",
+  "secretbox_wrap": "passphrase",
+  "secretbox_ciphertext": "hKnUshHdfQJ7ToReAE1JD6c1HcK6JJY+AAqEoi1I+DIWyEE2OAd0oecUeBswZQNMIFfWUDGDlkpB84RjGs4Lvg7dhVOXOK83oWr5N2hUCMBVquo9rCQHntHd8MyXs1WiQTrz+6ogBedFjXBFtx3/5RhzDMCo6Tjk"
+}
