@@ -1,0 +1,2 @@
+# spam-contract
+Spam Contract
