@@ -2,6 +2,7 @@
 #include <eosio/system.hpp>
 #include <eosio/transaction.hpp>
 #include <eosio/time.hpp>
+#include <eosio/singleton.hpp>
 
 
 using namespace eosio;
@@ -9,6 +10,11 @@ using namespace std;
 
 static constexpr uint64_t MAX_BATCH = 50;
 static constexpr uint64_t MAX_UNIQUES = 200;
+
+struct [[eosio::table("counter"), eosio::contract("spam")]] spam_row {
+    uint64_t        actions = 0;
+};
+typedef eosio::singleton< "counter"_n, spam_row> counter_table;
 
 class [[eosio::contract("spam")]] spam : public contract {
 public:
@@ -22,7 +28,8 @@ public:
      * @param {datastream} ds - The datastream used
      */
     spam( name receiver, name code, eosio::datastream<const char*> ds )
-        : contract( receiver, code, ds )
+        : contract( receiver, code, ds ),
+            _counter( get_self(), get_self().value )
     {}
 
     [[eosio::action]]
@@ -39,6 +46,8 @@ public:
     using nounce_action = eosio::action_wrapper<"nounce"_n, &spam::nounce>;
 
 private:
+    counter_table      _counter;
+
     void send_deferred( const eosio::action action, const uint64_t key, const unsigned_int delay_sec );
     uint64_t calculate_key( const time_point_sec timestamp, const uint64_t batch );
 };

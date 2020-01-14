@@ -5,8 +5,6 @@ void spam::init( const time_point_sec timestamp )
     check( timestamp > current_time_point(), "timestamp must be in the future" );
     int64_t delay_sec = (timestamp - current_time_point()).to_seconds();
 
-    print("delay_sec:" + to_string(delay_sec ));
-
     spam::fire_action fire( get_self(), { get_self(), "active"_n });
 
     for (uint64_t batch = 0; batch <= MAX_BATCH; ++batch) {
@@ -34,8 +32,9 @@ void spam::fire( const time_point_sec timestamp, uint64_t batch )
 
 void spam::nounce( const time_point_sec timestamp, uint64_t batch, uint64_t unique )
 {
-    print( "unique:" + to_string(unique) + "\n");
-    print( "batch:" + to_string(batch) + "\n");
+    auto counter = _counter.get_or_default();
+    counter.actions += 1;
+    _counter.set( counter, get_self() );
 }
 
 void spam::send_deferred( const eosio::action action, const uint64_t key, const unsigned_int delay_sec )
