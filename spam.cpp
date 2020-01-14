@@ -1,6 +1,6 @@
 #include "spam.hpp"
 
-void spam::init( const time_point_sec timestamp )
+void spam::init( const time_point_sec timestamp, const name type )
 {
     check( timestamp > current_time_point(), "timestamp must be in the future" );
     int64_t delay_sec = (timestamp - current_time_point()).to_seconds();
@@ -8,29 +8,44 @@ void spam::init( const time_point_sec timestamp )
     spam::fire_action fire( get_self(), { get_self(), "active"_n });
 
     for (uint64_t batch = 0; batch <= MAX_BATCH; ++batch) {
-        const uint64_t key = calculate_key( timestamp, batch );
-        send_deferred( fire.to_action( timestamp, batch ), key, delay_sec );
+        const uint64_t key = calculate_key( timestamp, batch, type );
+        send_deferred( fire.to_action( timestamp, batch, type ), key, delay_sec );
     }
 }
 
-uint64_t spam::calculate_key( const time_point_sec timestamp, const uint64_t batch )
+uint64_t spam::calculate_key( const time_point_sec timestamp, const uint64_t batch, const name type )
 {
-    return timestamp.sec_since_epoch() + batch * 10000;
+    return timestamp.sec_since_epoch() + batch * 10000 + type.value;
 }
 
-void spam::fire( const time_point_sec timestamp, uint64_t batch )
+void spam::fire( const time_point_sec timestamp, uint64_t batch, const name type )
 {
-    spam::nounce_action nounce( get_self(), { get_self(), "active"_n });
+    spam::add_action add( get_self(), { get_self(), "active"_n });
+    spam::minus_action minus( get_self(), { get_self(), "active"_n });
+
+    check( type == "add"_n || type == "minus"_n, "[type] must be add or minus");
 
     for (uint64_t unique = 1; unique <= MAX_UNIQUES; ++unique) {
-        nounce.send( timestamp, batch, unique );
+        const uint64_t key = calculate_key( timestamp, batch, type ) + unique;
 
-        const uint64_t key = calculate_key( timestamp, batch ) + unique;
-        send_deferred( nounce.to_action( timestamp, batch, unique ), key, 0 );
+        if (type == "add"_n) {
+            add.send( timestamp, batch, unique );
+            send_deferred( add.to_action( timestamp, batch, unique ), key, 0 );
+        } else if (type == "minus"_n) {
+            add.send( timestamp, batch, unique );
+            send_deferred( add.to_action( timestamp, batch, unique ), key, 0 );
+        }
     }
 }
 
-void spam::nounce( const time_point_sec timestamp, uint64_t batch, uint64_t unique )
+void spam::minus( const time_point_sec timestamp, uint64_t batch, uint64_t unique )
+{
+    auto counter = _counter.get_or_default();
+    counter.actions -= 1;
+    _counter.set( counter, get_self() );
+}
+
+void spam::add( const time_point_sec timestamp, uint64_t batch, uint64_t unique )
 {
     auto counter = _counter.get_or_default();
     counter.actions += 1;

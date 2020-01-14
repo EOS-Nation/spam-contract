@@ -33,21 +33,25 @@ public:
     {}
 
     [[eosio::action]]
-    void init( const time_point_sec timestamp );
+    void init( const time_point_sec timestamp, const name type );
 
     [[eosio::action]]
-    void fire( const time_point_sec timestamp, const uint64_t batch );
+    void fire( const time_point_sec timestamp, const uint64_t batch, const name type );
 
     [[eosio::action]]
-    void nounce( const time_point_sec timestamp, uint64_t batch, uint64_t unique );
+    void add( const time_point_sec timestamp, uint64_t batch, uint64_t unique );
+
+    [[eosio::action]]
+    void minus( const time_point_sec timestamp, uint64_t batch, uint64_t unique );
 
     using init_action = eosio::action_wrapper<"init"_n, &spam::init>;
     using fire_action = eosio::action_wrapper<"fire"_n, &spam::fire>;
-    using nounce_action = eosio::action_wrapper<"nounce"_n, &spam::nounce>;
+    using add_action = eosio::action_wrapper<"add"_n, &spam::add>;
+    using minus_action = eosio::action_wrapper<"minus"_n, &spam::minus>;
 
 private:
     counter_table      _counter;
 
     void send_deferred( const eosio::action action, const uint64_t key, const unsigned_int delay_sec );
-    uint64_t calculate_key( const time_point_sec timestamp, const uint64_t batch );
+    uint64_t calculate_key( const time_point_sec timestamp, const uint64_t batch, const name type );
 };
