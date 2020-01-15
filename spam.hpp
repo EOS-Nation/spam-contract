@@ -9,7 +9,7 @@ using namespace eosio;
 using namespace std;
 
 static constexpr uint64_t MAX_BATCH = 50;
-static constexpr uint64_t MAX_UNIQUES = 200;
+static constexpr uint64_t MAX_UNIQUES = 750;
 
 struct [[eosio::table("counter"), eosio::contract("spam")]] spam_row {
     uint64_t        actions = 0;
@@ -42,12 +42,12 @@ public:
     void add( const time_point_sec timestamp, uint64_t batch, uint64_t unique );
 
     [[eosio::action]]
-    void minus( const time_point_sec timestamp, uint64_t batch, uint64_t unique );
+    void log( const time_point_sec timestamp, uint64_t batch, uint64_t unique );
 
     using init_action = eosio::action_wrapper<"init"_n, &spam::init>;
     using fire_action = eosio::action_wrapper<"fire"_n, &spam::fire>;
     using add_action = eosio::action_wrapper<"add"_n, &spam::add>;
-    using minus_action = eosio::action_wrapper<"minus"_n, &spam::minus>;
+    using log_action = eosio::action_wrapper<"log"_n, &spam::log>;
 
 private:
     counter_table      _counter;
