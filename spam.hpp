@@ -39,7 +39,7 @@ public:
     void fire( const time_point_sec timestamp, const uint64_t batch, const name type );
 
     [[eosio::action]]
-    void add( const time_point_sec timestamp, uint64_t batch, uint64_t unique );
+    void add( );
 
     [[eosio::action]]
     void log( const time_point_sec timestamp, uint64_t batch, uint64_t unique );

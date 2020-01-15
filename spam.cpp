@@ -34,7 +34,7 @@ void spam::fire( const time_point_sec timestamp, uint64_t batch, const name type
 
         if (type == "add"_n) {
             // add.send( timestamp, batch, unique );
-            send_deferred( add.to_action( timestamp, batch, unique ), key, 0 );
+            send_deferred( add.to_action( ), key, 0 );
         } else if (type == "log"_n) {
             // log.send( timestamp, batch, unique );
             send_deferred( log.to_action( timestamp, batch, unique ), key, 0 );
@@ -42,7 +42,7 @@ void spam::fire( const time_point_sec timestamp, uint64_t batch, const name type
     }
 }
 
-void spam::add( const time_point_sec timestamp, uint64_t batch, uint64_t unique )
+void spam::add()
 {
     auto counter = _counter.get_or_default();
     counter.actions += 1;
